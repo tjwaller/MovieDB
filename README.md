@@ -39,4 +39,5 @@
 ## Notes
 
 The functions we need to implement are found in `Table.java` at around line 200 and after
+
 `ctrl + f` for "//  T O   B E   I M P L E M E N T E D"
