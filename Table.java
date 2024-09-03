@@ -275,16 +275,36 @@ public class Table
      * @param table2  The rhs table in the minus operation
      * @return  a table representing the difference
      */
-    public Table minus (Table table2)
-    {
-        out.println ("RA> " + name + ".minus (" + table2.name + ")");
-        if (! compatible (table2)) return null;
-
-        List <Comparable []> rows = new ArrayList <> ();
-
-
-        return new Table (name + count++, attribute, domain, key, rows);
-    } // minus
+    public Table minus(Table table2) {
+        // Log the minus operation
+        out.println("RA> " + name + ".minus (" + table2.name + ")");
+        
+        // Check if the tables are compatible; if not, return null
+        if (!compatible(table2)) return null;
+    
+        // Initialize a list to hold the rows of the resulting table
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Iterate through each tuple in the current table
+        for (Comparable[] tuple : this.tuples) {
+            // Check if the tuple is not present in table2
+            boolean isPresentInTable2 = false;
+            for (Comparable[] tuple2 : table2.tuples) {
+                if (Arrays.equals(tuple, tuple2)) {
+                    isPresentInTable2 = true;
+                    break;
+                }
+            }
+            // If the tuple is not in table2, add it to the resulting rows
+            if (!isPresentInTable2) {
+                rows.add(tuple);
+            }
+        }
+    
+        // Create and return a new table with the resulting rows
+        return new Table(name + count++, attribute, domain, key, rows);
+    }
+    
 
 
 

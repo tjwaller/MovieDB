@@ -24,7 +24,7 @@
 - **Syntax:** $\Pi_{attribute_1, attribute_2, \dots}(R)$
 - **Example:** $\Pi_{name, salary}(Employees)$ would return a relation with just the `name` and `salary` attributes of all employees.
 
-#### UNION $\cup$
+#### UNION $\cup$ 
 
 - **Description:** Combines the tuples of two relations into a single relation, removing duplicates.
 - **Syntax:** $R \cup S$
