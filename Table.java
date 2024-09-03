@@ -132,18 +132,39 @@ public class Table
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
      */
-    public Table project (String attributes)
-    {
-        out.println ("RA> " + name + ".project (" + attributes + ")");
-        String [] attrs     = attributes.split (" ");
-        Class []  colDomain = extractDom (match (attrs), domain);
-        String [] newKey    = (Arrays.asList (attrs).containsAll (Arrays.asList (key))) ? key : attrs;
-
-        List <Comparable []> rows = new ArrayList <> ();
-
-
-        return new Table (name + count++, attrs, colDomain, newKey, rows);
-    } // project
+    public Table project(String attributes) {
+        out.println("RA> " + name + ".project (" + attributes + ")");
+        
+        // Split the input attributes string into an array
+        String[] attrs = attributes.split(" ");
+        
+        // Match the provided attributes with their corresponding indices in the original table
+        int[] colIndices = match(attrs);
+        
+        // Extract the domains (data types) for the projected attributes
+        Class[] colDomain = extractDom(colIndices, domain);
+        
+        // Determine the new key based on whether the original key is fully included in the projection
+        String[] newKey = (Arrays.asList(attrs).containsAll(Arrays.asList(key))) ? key : attrs;
+    
+        // Initialize a list to store the projected tuples
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Iterate over each tuple in the original table
+        for (Comparable[] tuple : this.tuples) {
+            // Extract the values corresponding to the projected attributes
+            Comparable[] projectedTuple = new Comparable[colIndices.length];
+            for (int i = 0; i < colIndices.length; i++) {
+                projectedTuple[i] = tuple[colIndices[i]];
+            }
+            // Add the projected tuple to the list of rows
+            rows.add(projectedTuple);
+        }
+    
+        // Create and return the new table with the projected attributes and tuples
+        return new Table(name + count++, attrs, colDomain, newKey, rows);
+    }
+    
 
     /************************************************************************************
      * Select the tuples satisfying the given predicate (Boolean function).
@@ -220,16 +241,30 @@ public class Table
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
      */
-    public Table union (Table table2)
-    {
-        out.println ("RA> " + name + ".union (" + table2.name + ")");
-        if (! compatible (table2)) return null;
-
-        List <Comparable []> rows = new ArrayList <> ();
-
-
-        return new Table (name + count++, attribute, domain, key, rows);
-    } // union
+    public Table union(Table table2) {
+        // Log the union operation
+        out.println("RA> " + name + ".union (" + table2.name + ")");
+        
+        // Check if the tables are compatible; if not, return null
+        if (!compatible(table2)) return null;
+    
+        // Initialize a list to hold the rows of the resulting table
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Add all tuples from the current table (this)
+        rows.addAll(this.tuples);
+    
+        // Add tuples from table2 that are not already in rows
+        for (Comparable[] tuple2 : table2.tuples) {
+            if (!rows.contains(tuple2)) {
+                rows.add(tuple2);
+            }
+        }
+    
+        // Create and return a new table with the union of the tuples
+        return new Table(name + count++, attribute, domain, key, rows);
+    }
+    
 
     /************************************************************************************
      * Take the difference of this table and table2.  Check that the two tables are
@@ -272,6 +307,7 @@ public class Table
         out.println ("RA> " + name + ".join (" + attributes1 + ", " + attributes2 + ", "
                                                + table2.name + ")");
         //  T O   B E   I M P L E M E N T E D 
+        
 
         return null;
 
