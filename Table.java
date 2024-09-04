@@ -132,18 +132,29 @@ public class Table
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
      */
-    public Table project (String attributes)
-    {
-        out.println ("RA> " + name + ".project (" + attributes + ")");
-        String [] attrs     = attributes.split (" ");
-        Class []  colDomain = extractDom (match (attrs), domain);
-        String [] newKey    = (Arrays.asList (attrs).containsAll (Arrays.asList (key))) ? key : attrs;
-
-        List <Comparable []> rows = new ArrayList <> ();
-        //  T O   B E   I M P L E M E N T E D
-
-        return new Table (name + count++, attrs, colDomain, newKey, rows);
-    } // project
+    public Table project(String attributes) {
+        out.println("RA> " + name + ".project (" + attributes + ")");
+        String[] attrs = attributes.split(" ");
+        Class[] colDomain = extractDom(match(attrs), domain);
+        String[] newKey = (Arrays.asList(attrs).containsAll(Arrays.asList(key))) ? key : attrs;
+    
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Project each tuple onto the new set of attributes
+        for (Comparable[] tuple : tuples) {
+            Comparable[] projectedTuple = new Comparable[attrs.length];
+            int[] colIndices = match(attrs);  // Find the indices of the selected attributes
+    
+            for (int i = 0; i < colIndices.length; i++) {
+                projectedTuple[i] = tuple[colIndices[i]];
+            }
+    
+            rows.add(projectedTuple);
+        }
+    
+        return new Table(name + count++, attrs, colDomain, newKey, rows);
+    }
+    
 
     /************************************************************************************
      * Select the tuples satisfying the given predicate (Boolean function).
@@ -219,16 +230,22 @@ public class Table
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
      */
-    public Table union (Table table2)
-    {
-        out.println ("RA> " + name + ".union (" + table2.name + ")");
-        if (! compatible (table2)) return null;
-
-        List <Comparable []> rows = new ArrayList <> ();
-        //  T O   B E   I M P L E M E N T E D
-
-        return new Table (name + count++, attribute, domain, key, rows);
-    } // union
+    public Table union(Table table2) {
+        out.println("RA> " + name + ".union (" + table2.name + ")");
+        if (!compatible(table2)) return null;
+    
+        List<Comparable[]> rows = new ArrayList<>(tuples);
+    
+        // Add unique tuples from table2 to the rows list
+        for (Comparable[] tuple : table2.tuples) {
+            if (!rows.contains(tuple)) {
+                rows.add(tuple);
+            }
+        }
+    
+        return new Table(name + count++, attribute, domain, key, rows);
+    }
+    
 
     /************************************************************************************
      * Take the difference of this table and table2.  Check that the two tables are
@@ -239,16 +256,22 @@ public class Table
      * @param table2  The rhs table in the minus operation
      * @return  a table representing the difference
      */
-    public Table minus (Table table2)
-    {
-        out.println ("RA> " + name + ".minus (" + table2.name + ")");
-        if (! compatible (table2)) return null;
-
-        List <Comparable []> rows = new ArrayList <> ();
-        //  T O   B E   I M P L E M E N T E D
-
-        return new Table (name + count++, attribute, domain, key, rows);
-    } // minus
+    public Table minus(Table table2) {
+        out.println("RA> " + name + ".minus (" + table2.name + ")");
+        if (!compatible(table2)) return null;
+    
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Add tuples from this table that are not in table2
+        for (Comparable[] tuple : tuples) {
+            if (!table2.tuples.contains(tuple)) {
+                rows.add(tuple);
+            }
+        }
+    
+        return new Table(name + count++, attribute, domain, key, rows);
+    }
+    
 
 
 
@@ -360,17 +383,63 @@ public class Table
      * @param table2  the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
-    public Table join (Table table2)
-    {
-        out.println ("RA> " + name + ".join (" + table2.name + ")");
-
-        List <Comparable []> rows = new ArrayList <> ();
-        //  T O   B E   I M P L E M E N T E D
-        
-        // FIX: elemenate duplicate columns
-        return new Table (name + count++, ArrayUtil.concat (attribute, table2.attribute),
-                                          ArrayUtil.concat (domain, table2.domain), key, rows);
-    } // join
+    public Table join(Table table2) {
+        out.println("RA> " + name + ".join (" + table2.name + ")");
+    
+        // Identify common attributes
+        List<String> commonAttributes = new ArrayList<>();
+        for (String attr : attribute) {
+            if (Arrays.asList(table2.attribute).contains(attr)) {
+                commonAttributes.add(attr);
+            }
+        }
+    
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Join the tuples based on the common attributes
+        for (Comparable[] tuple1 : tuples) {
+            for (Comparable[] tuple2 : table2.tuples) {
+                boolean match = true;
+                for (String commonAttr : commonAttributes) {
+                    int index1 = col(commonAttr);
+                    int index2 = table2.col(commonAttr);
+                    if (!tuple1[index1].equals(tuple2[index2])) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    // Concatenate tuples but eliminate duplicate columns
+                    Comparable[] combinedTuple = new Comparable[attribute.length + table2.attribute.length - commonAttributes.size()];
+                    int i = 0;
+                    for (Comparable value : tuple1) {
+                        combinedTuple[i++] = value;
+                    }
+                    for (int j = 0; j < tuple2.length; j++) {
+                        if (!commonAttributes.contains(table2.attribute[j])) {
+                            combinedTuple[i++] = tuple2[j];
+                        }
+                    }
+                    rows.add(combinedTuple);
+                }
+            }
+        }
+    
+        // Create the new attribute and domain arrays for the result table
+        List<String> newAttributes = new ArrayList<>(Arrays.asList(attribute));
+        List<Class<?>> newDomain = new ArrayList<>(Arrays.asList(domain));
+    
+        for (int j = 0; j < table2.attribute.length; j++) {
+            if (!commonAttributes.contains(table2.attribute[j])) {
+                newAttributes.add(table2.attribute[j]);
+                newDomain.add(table2.domain[j]);
+            }
+        }
+    
+        return new Table(name + count++, newAttributes.toArray(new String[0]), 
+                         newDomain.toArray(new Class[0]), key, rows);
+    }
+    
 
     /************************************************************************************
      * Return the column position for the given attribute name.
@@ -571,12 +640,22 @@ public class Table
      * @return  whether the tuple has the right size and values that comply
      *          with the given domains
      */
-    private boolean typeCheck (Comparable [] t)
-    { 
-        //  T O   B E   I M P L E M E N T E D
-        
+    private boolean typeCheck(Comparable[] t) {
+        // Check if the tuple size matches the number of attributes
+        if (t.length != domain.length) {
+            return false;
+        }
+    
+        // Check if each value in the tuple matches the expected domain type
+        for (int i = 0; i < t.length; i++) {
+            if (t[i] != null && !domain[i].isInstance(t[i])) {
+                return false;
+            }
+        }
+    
         return true;
-    } // typeCheck
+    }
+    
 
     /************************************************************************************
      * Find the classes in the "java.lang" package with given names.
