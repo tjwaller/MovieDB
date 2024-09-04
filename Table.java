@@ -228,7 +228,10 @@ public class Table
 
         List <Comparable []> rows = new ArrayList <> ();
 
-        //  T O   B E   I M P L E M E N T E D 
+        // Check if the index contains the keyVal and retrieve the corresponding tuple
+        if (index.containsKey(keyVal)) {
+            rows.add(index.get(keyVal));
+        }
 
         return new Table (name + count++, attribute, domain, key, rows);
     } // select
@@ -322,16 +325,55 @@ public class Table
      * @param table2      the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
-    public Table join (String attributes1, String attributes2, Table table2)
-    {
-        out.println ("RA> " + name + ".join (" + attributes1 + ", " + attributes2 + ", "
-                                               + table2.name + ")");
-        //  T O   B E   I M P L E M E N T E D 
-        
-
-        return null;
-
+    public Table join(String attributes1, String attributes2, Table table2) {
+        out.println("RA> " + name + ".join (" + attributes1 + ", " + attributes2 + ", " + table2.name + ")");
+    
+        String[] tAttrs = attributes1.split(" ");
+        String[] uAttrs = attributes2.split(" ");
+    
+        // Check if the attribute arrays have the same length
+        if (tAttrs.length != uAttrs.length) {
+            System.out.println("The number of attributes in the join condition does not match.");
+            return null;
+        }
+    
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Loop through the tuples in the current table
+        for (Comparable[] tuple1 : tuples) {
+            // Extract the values for the attributes1 from the current table's tuple
+            Comparable[] keyValues = extract(tuple1, tAttrs);
+    
+            // Create a KeyType object to use for the index lookup in table2
+            KeyType key = new KeyType(keyValues);
+    
+            // Use the index to find the matching tuple in table2
+            Comparable[] tuple2 = table2.index.get(key);
+            if (tuple2 != null) {
+                // Join the tuples if a matching tuple is found
+                Comparable[] joinTuple = ArrayUtil.concat(tuple1, tuple2);
+                rows.add(joinTuple);
+            }
+        }
+    
+        // Handle disambiguation of attribute names for table2
+        String[] attribute2New = new String[table2.attribute.length];
+        for (int i = 0; i < table2.attribute.length; i++) {
+            if (Arrays.asList(tAttrs).contains(table2.attribute[i])) {
+                attribute2New[i] = table2.attribute[i] + "2";
+            } else {
+                attribute2New[i] = table2.attribute[i];
+            }
+        }
+    
+        // Combine the attributes and domains of both tables
+        String[] newAttributes = ArrayUtil.concat(attribute, attribute2New);
+        Class[] newDomain = ArrayUtil.concat(domain, table2.domain);
+    
+        // Return the new table containing the joined tuples
+        return new Table(name + count++, newAttributes, newDomain, key, rows);
     }
+    
 
     /************************************************************************************
      * Join this table and table2 by performing an "equi-join".  Tuples from both tables
@@ -632,7 +674,23 @@ public class Table
      */
     private boolean typeCheck (Comparable [] t)
     { 
-        //  T O   B E   I M P L E M E N T E D 
+        // Check if the tuple has the right number of elements
+        if (t.length != attribute.length) {
+            return false;
+        }
+
+        // Check if each element in the tuple conforms to the expected domain type
+        for (int i = 0; i < t.length; i++) {
+            if (t[i] == null) {
+                // Optionally handle null values based on your domain rules
+                return false;
+            }
+
+            // Check if the type of the element matches the expected domain type
+            if (!domain[i].isInstance(t[i])) {
+                return false;
+            }
+        }
 
         return true;
     } // typeCheck
