@@ -132,18 +132,29 @@ public class Table
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
      */
-    public Table project (String attributes)
-    {
-        out.println ("RA> " + name + ".project (" + attributes + ")");
-        String [] attrs     = attributes.split (" ");
-        Class []  colDomain = extractDom (match (attrs), domain);
-        String [] newKey    = (Arrays.asList (attrs).containsAll (Arrays.asList (key))) ? key : attrs;
-
-        List <Comparable []> rows = new ArrayList <> ();
-        //  T O   B E   I M P L E M E N T E D
-
-        return new Table (name + count++, attrs, colDomain, newKey, rows);
-    } // project
+    public Table project(String attributes) {
+        out.println("RA> " + name + ".project (" + attributes + ")");
+        String[] attrs = attributes.split(" ");
+        Class[] colDomain = extractDom(match(attrs), domain);
+        String[] newKey = (Arrays.asList(attrs).containsAll(Arrays.asList(key))) ? key : attrs;
+    
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Project each tuple onto the new set of attributes
+        for (Comparable[] tuple : tuples) {
+            Comparable[] projectedTuple = new Comparable[attrs.length];
+            int[] colIndices = match(attrs);  // Find the indices of the selected attributes
+    
+            for (int i = 0; i < colIndices.length; i++) {
+                projectedTuple[i] = tuple[colIndices[i]];
+            }
+    
+            rows.add(projectedTuple);
+        }
+    
+        return new Table(name + count++, attrs, colDomain, newKey, rows);
+    }
+    
 
     /************************************************************************************
      * Select the tuples satisfying the given predicate (Boolean function).
