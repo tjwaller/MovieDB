@@ -41,3 +41,16 @@
 The functions we need to implement are found in `Table.java` at around line 200 and after
 
 `ctrl + f` for "//  T O   B E   I M P L E M E N T E D"
+
+
+## Copy of the Rubric
+
+|Points| Operation| Completed |
+|------|----------|----------|
+|20 |Natural Join| |
+|20 |Project| |
+|20 |Union| |
+|20 |Minus| |
+|10 |TypeCheck| |
+|10 |Java Doc (all interfaces, classes, fields, constructors, methods and parameters must be documented) & README file| |
+|100 |TOTAL| |

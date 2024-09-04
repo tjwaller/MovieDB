@@ -132,39 +132,18 @@ public class Table
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
      */
-    public Table project(String attributes) {
-        out.println("RA> " + name + ".project (" + attributes + ")");
-        
-        // Split the input attributes string into an array
-        String[] attrs = attributes.split(" ");
-        
-        // Match the provided attributes with their corresponding indices in the original table
-        int[] colIndices = match(attrs);
-        
-        // Extract the domains (data types) for the projected attributes
-        Class[] colDomain = extractDom(colIndices, domain);
-        
-        // Determine the new key based on whether the original key is fully included in the projection
-        String[] newKey = (Arrays.asList(attrs).containsAll(Arrays.asList(key))) ? key : attrs;
-    
-        // Initialize a list to store the projected tuples
-        List<Comparable[]> rows = new ArrayList<>();
-    
-        // Iterate over each tuple in the original table
-        for (Comparable[] tuple : this.tuples) {
-            // Extract the values corresponding to the projected attributes
-            Comparable[] projectedTuple = new Comparable[colIndices.length];
-            for (int i = 0; i < colIndices.length; i++) {
-                projectedTuple[i] = tuple[colIndices[i]];
-            }
-            // Add the projected tuple to the list of rows
-            rows.add(projectedTuple);
-        }
-    
-        // Create and return the new table with the projected attributes and tuples
-        return new Table(name + count++, attrs, colDomain, newKey, rows);
-    }
-    
+    public Table project (String attributes)
+    {
+        out.println ("RA> " + name + ".project (" + attributes + ")");
+        String [] attrs     = attributes.split (" ");
+        Class []  colDomain = extractDom (match (attrs), domain);
+        String [] newKey    = (Arrays.asList (attrs).containsAll (Arrays.asList (key))) ? key : attrs;
+
+        List <Comparable []> rows = new ArrayList <> ();
+        //  T O   B E   I M P L E M E N T E D
+
+        return new Table (name + count++, attrs, colDomain, newKey, rows);
+    } // project
 
     /************************************************************************************
      * Select the tuples satisfying the given predicate (Boolean function).
@@ -227,11 +206,7 @@ public class Table
         out.println ("RA> " + name + ".select (" + keyVal + ")");
 
         List <Comparable []> rows = new ArrayList <> ();
-
-        // Check if the index contains the keyVal and retrieve the corresponding tuple
-        if (index.containsKey(keyVal)) {
-            rows.add(index.get(keyVal));
-        }
+         
 
         return new Table (name + count++, attribute, domain, key, rows);
     } // select
@@ -244,30 +219,16 @@ public class Table
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
      */
-    public Table union(Table table2) {
-        // Log the union operation
-        out.println("RA> " + name + ".union (" + table2.name + ")");
-        
-        // Check if the tables are compatible; if not, return null
-        if (!compatible(table2)) return null;
-    
-        // Initialize a list to hold the rows of the resulting table
-        List<Comparable[]> rows = new ArrayList<>();
-    
-        // Add all tuples from the current table (this)
-        rows.addAll(this.tuples);
-    
-        // Add tuples from table2 that are not already in rows
-        for (Comparable[] tuple2 : table2.tuples) {
-            if (!rows.contains(tuple2)) {
-                rows.add(tuple2);
-            }
-        }
-    
-        // Create and return a new table with the union of the tuples
-        return new Table(name + count++, attribute, domain, key, rows);
-    }
-    
+    public Table union (Table table2)
+    {
+        out.println ("RA> " + name + ".union (" + table2.name + ")");
+        if (! compatible (table2)) return null;
+
+        List <Comparable []> rows = new ArrayList <> ();
+        //  T O   B E   I M P L E M E N T E D
+
+        return new Table (name + count++, attribute, domain, key, rows);
+    } // union
 
     /************************************************************************************
      * Take the difference of this table and table2.  Check that the two tables are
@@ -278,36 +239,16 @@ public class Table
      * @param table2  The rhs table in the minus operation
      * @return  a table representing the difference
      */
-    public Table minus(Table table2) {
-        // Log the minus operation
-        out.println("RA> " + name + ".minus (" + table2.name + ")");
-        
-        // Check if the tables are compatible; if not, return null
-        if (!compatible(table2)) return null;
-    
-        // Initialize a list to hold the rows of the resulting table
-        List<Comparable[]> rows = new ArrayList<>();
-    
-        // Iterate through each tuple in the current table
-        for (Comparable[] tuple : this.tuples) {
-            // Check if the tuple is not present in table2
-            boolean isPresentInTable2 = false;
-            for (Comparable[] tuple2 : table2.tuples) {
-                if (Arrays.equals(tuple, tuple2)) {
-                    isPresentInTable2 = true;
-                    break;
-                }
-            }
-            // If the tuple is not in table2, add it to the resulting rows
-            if (!isPresentInTable2) {
-                rows.add(tuple);
-            }
-        }
-    
-        // Create and return a new table with the resulting rows
-        return new Table(name + count++, attribute, domain, key, rows);
-    }
-    
+    public Table minus (Table table2)
+    {
+        out.println ("RA> " + name + ".minus (" + table2.name + ")");
+        if (! compatible (table2)) return null;
+
+        List <Comparable []> rows = new ArrayList <> ();
+        //  T O   B E   I M P L E M E N T E D
+
+        return new Table (name + count++, attribute, domain, key, rows);
+    } // minus
 
 
 
@@ -325,55 +266,14 @@ public class Table
      * @param table2      the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
-    public Table join(String attributes1, String attributes2, Table table2) {
-        out.println("RA> " + name + ".join (" + attributes1 + ", " + attributes2 + ", " + table2.name + ")");
-    
-        String[] tAttrs = attributes1.split(" ");
-        String[] uAttrs = attributes2.split(" ");
-    
-        // Check if the attribute arrays have the same length
-        if (tAttrs.length != uAttrs.length) {
-            System.out.println("The number of attributes in the join condition does not match.");
-            return null;
-        }
-    
-        List<Comparable[]> rows = new ArrayList<>();
-    
-        // Loop through the tuples in the current table
-        for (Comparable[] tuple1 : tuples) {
-            // Extract the values for the attributes1 from the current table's tuple
-            Comparable[] keyValues = extract(tuple1, tAttrs);
-    
-            // Create a KeyType object to use for the index lookup in table2
-            KeyType key = new KeyType(keyValues);
-    
-            // Use the index to find the matching tuple in table2
-            Comparable[] tuple2 = table2.index.get(key);
-            if (tuple2 != null) {
-                // Join the tuples if a matching tuple is found
-                Comparable[] joinTuple = ArrayUtil.concat(tuple1, tuple2);
-                rows.add(joinTuple);
-            }
-        }
-    
-        // Handle disambiguation of attribute names for table2
-        String[] attribute2New = new String[table2.attribute.length];
-        for (int i = 0; i < table2.attribute.length; i++) {
-            if (Arrays.asList(tAttrs).contains(table2.attribute[i])) {
-                attribute2New[i] = table2.attribute[i] + "2";
-            } else {
-                attribute2New[i] = table2.attribute[i];
-            }
-        }
-    
-        // Combine the attributes and domains of both tables
-        String[] newAttributes = ArrayUtil.concat(attribute, attribute2New);
-        Class[] newDomain = ArrayUtil.concat(domain, table2.domain);
-    
-        // Return the new table containing the joined tuples
-        return new Table(name + count++, newAttributes, newDomain, key, rows);
+    public Table indexedJoin (String attributes1, String attributes2, Table table2)
+    {
+        out.println ("RA> " + name + ".join (" + attributes1 + ", " + attributes2 + ", "
+                                               + table2.name + ")");
+
+        return null;
+
     }
-    
 
     /************************************************************************************
      * Join this table and table2 by performing an "equi-join".  Tuples from both tables
@@ -389,9 +289,9 @@ public class Table
      * @param table2      the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
-    public Table noIndexjoin (String attributes1, String attributes2, Table table2)
+    public Table join (String attributes1, String attributes2, Table table2)
     {
-        out.println ("RA> " + name + ".noIndexjoin (" + attributes1 + ", " + attributes2 + ", "
+        out.println ("RA> " + name + ".join (" + attributes1 + ", " + attributes2 + ", "
                                                + table2.name + ")");
 
         String [] t_attrs = attributes1.split (" ");
@@ -444,7 +344,6 @@ public class Table
 			}
 		}
 		
-
 		return new Table (name + count++, ArrayUtil.concat (attribute, attribute2_new),
 				ArrayUtil.concat (domain, table2.domain), key, rows);
 	} // join
@@ -466,9 +365,9 @@ public class Table
         out.println ("RA> " + name + ".join (" + table2.name + ")");
 
         List <Comparable []> rows = new ArrayList <> ();
-
-
-        // FIX - eliminate duplicate columns
+        //  T O   B E   I M P L E M E N T E D
+        
+        // FIX: elemenate duplicate columns
         return new Table (name + count++, ArrayUtil.concat (attribute, table2.attribute),
                                           ArrayUtil.concat (domain, table2.domain), key, rows);
     } // join
@@ -674,24 +573,8 @@ public class Table
      */
     private boolean typeCheck (Comparable [] t)
     { 
-        // Check if the tuple has the right number of elements
-        if (t.length != attribute.length) {
-            return false;
-        }
-
-        // Check if each element in the tuple conforms to the expected domain type
-        for (int i = 0; i < t.length; i++) {
-            if (t[i] == null) {
-                // Optionally handle null values based on your domain rules
-                return false;
-            }
-
-            // Check if the type of the element matches the expected domain type
-            if (!domain[i].isInstance(t[i])) {
-                return false;
-            }
-        }
-
+        //  T O   B E   I M P L E M E N T E D
+        
         return true;
     } // typeCheck
 
