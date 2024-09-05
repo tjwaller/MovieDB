@@ -362,7 +362,7 @@ public class Table
 				if (attribute2_new[k].equals(t_attrs[j])) {
 					
 					String tmp_attri = t_attrs[j] + "2"; 
-					attribute2_new[j] = tmp_attri;
+					attribute2_new[k] = tmp_attri;
 				}
 			}
 		}
