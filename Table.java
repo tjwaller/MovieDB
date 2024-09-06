@@ -383,6 +383,8 @@ public class Table
      * @param table2  the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
      */
+
+     
     public Table join(Table table2) {
         out.println("RA> " + name + ".join (" + table2.name + ")");
     
@@ -427,7 +429,7 @@ public class Table
     
         // Create the new attribute and domain arrays for the result table
         List<String> newAttributes = new ArrayList<>(Arrays.asList(attribute));
-        List<Class<?>> newDomain = new ArrayList<>(Arrays.asList(domain));
+        var newDomain = new ArrayList<>(Arrays.asList(domain));
     
         for (int j = 0; j < table2.attribute.length; j++) {
             if (!commonAttributes.contains(table2.attribute[j])) {
