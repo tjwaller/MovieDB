@@ -164,9 +164,9 @@ public class Table
      * @param predicate  the check condition for tuples
      * @return  a table with tuples satisfying the predicate
      */
-    public Table select (Predicate <Comparable []> predicate)
+    public Table select (String description, Predicate <Comparable []> predicate)
     {
-        out.println ("RA> " + name + ".select (" + predicate + ")");
+        out.println ("RA> " + name + ".select (" + description + ")");
 
         return new Table (name + count++, attribute, domain, key,
                    tuples.stream ().filter (t -> predicate.test (t))
