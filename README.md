@@ -1,10 +1,17 @@
 # MovieDB
  Java implementation of a movie database
 
+ ## Members
+ - **Ethan Schrack**
+ - **Thomas Waller**
+ - **Ivan Cao**
+
+ ## How to Compile and Run
+ - 
 
 ***We need to implement the following Relational Algebra operators***
 
-### Relational Algebra Operators
+## Relational Algebra Operators
 
 #### JOIN $\Join$
 
@@ -47,10 +54,10 @@ The functions we need to implement are found in `Table.java` at around line 200 
 
 |Points| Operation| Completed |
 |------|----------|----------|
-|20 |Natural Join| |
-|20 |Project| |
-|20 |Union| |
-|20 |Minus| |
-|10 |TypeCheck| |
-|10 |Java Doc (all interfaces, classes, fields, constructors, methods and parameters must be documented) & README file| |
-|100 |TOTAL| |
+|20 |Natural Join|:white_check_mark:|
+|20 |Project|:white_check_mark:|
+|20 |Union|:white_check_mark:|
+|20 |Minus|:white_check_mark:|
+|10 |TypeCheck|:white_check_mark:|
+|10 |Java Doc (all interfaces, classes, fields, constructors, methods and parameters must be documented) & README file|:white_check_mark:|
+|100 |TOTAL|:white_check_mark:|

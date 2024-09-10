@@ -128,6 +128,8 @@ public class Table
      * Check whether the original key is included in the projection.
      *
      * #usage movie.project ("title year studioNo")
+     * 
+     * @author Ethan Schrack
      *
      * @param attributes  the attributes to project onto
      * @return  a table of projected tuples
@@ -233,7 +235,7 @@ public class Table
      *
      * #usage movie.union (show)
      * 
-     * @author Thomas Waller
+     * @author Ivan Cao
      *
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
@@ -262,7 +264,7 @@ public class Table
      *
      * #usage movie.minus (show)
      * 
-     * @author Thomas Waller
+     * @author Ivan Cao
      *
      * @param table2  The rhs table in the minus operation
      * @return  a table representing the difference
