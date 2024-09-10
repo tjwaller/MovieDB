@@ -232,6 +232,8 @@ public class Table
      * Union this table and table2.  Check that the two tables are compatible.
      *
      * #usage movie.union (show)
+     * 
+     * @author Thomas Waller
      *
      * @param table2  the rhs table in the union operation
      * @return  a table representing the union
@@ -259,6 +261,8 @@ public class Table
      * compatible.
      *
      * #usage movie.minus (show)
+     * 
+     * @author Thomas Waller
      *
      * @param table2  The rhs table in the minus operation
      * @return  a table representing the difference
@@ -387,6 +391,8 @@ public class Table
      * eliminated.
      *
      * #usage movieStar.join (starsIn)
+     * 
+     * @author Thomas Waller
      *
      * @param table2  the rhs table in the join operation
      * @return  a table with tuples satisfying the equality predicate
@@ -401,6 +407,17 @@ public class Table
             if (Arrays.asList(table2.attribute).contains(attr)) {
                 commonAttributes.add(attr);
             }
+        }
+
+        if (commonAttributes.isEmpty()) {
+            List<String> newAttributes = new ArrayList<>(Arrays.asList(attribute));
+            var newDomain = new ArrayList<>(Arrays.asList(domain));
+    
+            newAttributes.addAll(Arrays.asList(table2.attribute));
+            newDomain.addAll(Arrays.asList(table2.domain));
+    
+            return new Table(name + count++, newAttributes.toArray(new String[0]), 
+                             newDomain.toArray(new Class[0]), key, new ArrayList<>());
         }
     
         List<Comparable[]> rows = new ArrayList<>();
@@ -643,7 +660,9 @@ public class Table
 
     /************************************************************************************
      * Check the size of the tuple (number of elements in list) as well as the type of
-     * each value to ensure it is from the right domain. 
+     * each value to ensure it is from the right domain.
+     * 
+     * @author Thomas Waller
      *
      * @param t  the tuple as a list of attribute values
      * @return  whether the tuple has the right size and values that comply
