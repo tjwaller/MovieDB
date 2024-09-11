@@ -7,9 +7,9 @@
  - **Ivan Cao**
 
  ## How to Compile and Run
- - 
-
-***We need to implement the following Relational Algebra operators***
+ - Use Java extensions in Visual Studio Code. 
+ - Run MovieDB.java
+ - Output matches Expected_Output.txt
 
 ## Relational Algebra Operators
 
